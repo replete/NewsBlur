@@ -336,6 +336,7 @@ INSTALLED_APPS = (
     'vendor.zebra',
     'oauth2_provider',
     'corsheaders',
+    'django.contrib.messages'
 )
 
 # ==========
@@ -657,6 +658,7 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.media",
                 'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
             ],
             'loaders': template_loaders,
         },
