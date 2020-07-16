@@ -113,10 +113,12 @@ REDIS_STORY = {
     'host': 'redis',
 }
 REDIS_SESSIONS = {
-    'host': 'redis',
+    'host': '127.0.0.1',
+    'port': 6379
 }
-ELASTICSEARCH_FEED_HOSTS = ["elasticsearch:9200"]
-ELASTICSEARCH_STORY_HOSTS = ["elasticsearch:9200"]
+
+ELASTICSEARCH_FEED_HOSTS = ["127.0.0.1:9200"]
+ELASTICSEARCH_STORY_HOSTS = ["127.0.0.1:9200"]
 
 BACKED_BY_AWS = {
     'pages_on_node': False,
