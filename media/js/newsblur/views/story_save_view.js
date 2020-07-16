@@ -1,11 +1,15 @@
 NEWSBLUR.Views.StorySaveView = Backbone.View.extend({
     
     events: {
-        "click .NB-sideoption-save-populate" : "populate_story_tags"
+        "click .NB-sideoption-save-populate" : "populate_story_tags",
+        // "keypress .NB-sideoption-save-notes" : "autosize",
+        "keyup .NB-sideoption-save-notes"   : "debounced_save_user_notes",
+        "change .NB-sideoption-save-notes"   : "save_user_notes"
     },
     
     initialize: function() {
-        _.bindAll(this, 'toggle_feed_story_save_dialog');
+        this.debounced_save_user_notes = _.debounce(this.save_user_notes, 1000);
+        _.bindAll(this, 'toggle_feed_story_save_dialog', 'save_user_notes', 'autosize', 'debounced_save_user_notes');
         this.sideoptions_view = this.options.sideoptions_view;
         this.model.story_save_view = this;
         this.model.bind('change:starred', this.toggle_feed_story_save_dialog);
@@ -125,7 +129,11 @@ NEWSBLUR.Views.StorySaveView = Backbone.View.extend({
             this.resize(options);
         }
     },
-    
+
+    autosize: function() {
+        this.resize({duration: 100});
+    },
+
     resize: function(options) {
         options = options || {};
         var $sideoption_container = this.$('.NB-feed-story-sideoptions-container');
@@ -238,6 +246,31 @@ NEWSBLUR.Views.StorySaveView = Backbone.View.extend({
 
         var user_tags = $tag_input.tagit('assignedTags');
         this.model.set('user_tags', user_tags);
+    },
+
+    save_user_notes: function(options) {
+        var $notes = this.$('.NB-sideoption-save-notes');
+        var $message = this.$('.NB-sideoption-save-message');
+        var user_notes = $notes.val();
+        
+        if (this.model.get('user_notes') == user_notes) return;
+        console.log('save_user_notes', user_notes);
+        this.model.set('user_notes', user_notes, {silent: true});
+        $message.removeClass('NB-active');
+        if (this.saved_defer) {
+            clearTimeout(this.saved_defer);
+        }
+        NEWSBLUR.assets.mark_story_as_starred(this.model.id, _.bind(function() {
+            $message.addClass('NB-active');
+            if (this.saved_defer) {
+                clearTimeout(this.saved_defer);
+            }
+            this.saved_defer = _.delay(_.bind(function() {
+                $message.removeClass('NB-active');
+                this.saved_defer = null;
+            }, this), 3000);                
+        }, this));
+
     }
     
 });
